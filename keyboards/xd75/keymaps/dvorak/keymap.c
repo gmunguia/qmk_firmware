@@ -23,7 +23,10 @@ extern keymap_config_t keymap_config;
 enum custom_layers {
   _DVORAK,
   _LOWER,
-  _RAISE
+  _RAISE,
+  _I18N,
+  _SHIFT,
+  _I18NCAPS
 };
 
 enum custom_keycodes {
@@ -32,6 +35,18 @@ enum custom_keycodes {
   RAISE,
   ESC_CTL, // If tapped, ESC; if used in combination with other keys, works as LCTL.
   ENT_SFT, // If tapped, ENT; if used in combination with other keys, works as RSFT.
+  aACUTE,
+  oACUTE,
+  eACUTE,
+  uACUTE,
+  iACUTE,
+  nTILDE,
+  AACUTE,
+  OACUTE,
+  EACUTE,
+  UACUTE,
+  IACUTE,
+  NTILDE,
   BACKLIT
 };
 
@@ -101,6 +116,41 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   { KC_DEL,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______, _______, _______, KC_F6,   KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, KC_BSLS },
   { _______, KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  _______, _______, _______, KC_F12,  KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______ },
   { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, KC_MNXT, KC_VOLD, KC_VOLU, KC_MPLY }
+},
+
+/* I18N
+ * ,--------------------------------------------------------------------------------------------------------.
+ * |      |      |      |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+-------------+------+------+------+------+------+------+------+------|
+ * |      |  Á   |  Ó   |  É   |  Ú   |  Í   |      |      |      |      |      |      |  Ñ   |      |      |
+ * |------+------+------+------+------+------|------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |      |      |      |
+ * |------+------+------+------+------+------+------+------+------+------+------+------+------+------+------|
+ * |      |      |      |      |      |      |      |      |      |      |      |      |      |      |      |
+ * `--------------------------------------------------------------------------------------------------------'
+ */
+[_I18N] = {
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, aACUTE,  oACUTE,  eACUTE,  uACUTE,  iACUTE,  _______, _______, _______, _______, _______, _______, nTILDE,  _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ }
+},
+[_SHIFT] = {
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ }
+},
+[_I18NCAPS] = {
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, AACUTE,  OACUTE,  EACUTE,  UACUTE,  IACUTE,  _______, _______, _______, _______, _______, _______, NTILDE,  _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ }
 }
 };
 
@@ -137,9 +187,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       if (record->event.pressed) {
         smart_sft_state = KEY_NOT_USED;
         register_code(KC_RSFT);
+        layer_on(_SHIFT);
+        update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
       }
       else {
         unregister_code(KC_RSFT);
+        layer_off(_SHIFT);
+        update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
         if (smart_sft_state == KEY_NOT_USED) {
           register_code(KC_ENT);
           unregister_code(KC_ENT);
@@ -156,16 +210,24 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     case LOWER:
       if (record->event.pressed) {
         layer_on(_LOWER);
+        update_tri_layer(_LOWER, _RAISE, _I18N);
+        update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
       } else {
         layer_off(_LOWER);
+        update_tri_layer(_LOWER, _RAISE, _I18N);
+        update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
       }
       return false;
       break;
     case RAISE:
       if (record->event.pressed) {
         layer_on(_RAISE);
+        update_tri_layer(_LOWER, _RAISE, _I18N);
+        update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
       } else {
         layer_off(_RAISE);
+        update_tri_layer(_LOWER, _RAISE, _I18N);
+        update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
       }
       return false;
       break;
@@ -180,6 +242,52 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
       return false;
       break;
+    case KC_LSFT:
+    case KC_RSFT:
+      if (record->event.pressed) {
+        layer_on(_SHIFT);
+        update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
+      } else {
+        layer_off(_SHIFT);
+        update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
+      }
+      break;
+    case aACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"e1 ");
+      return false;
+    case AACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"c1 ");
+      return false;
+    case oACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"f3 ");
+      return false;
+    case OACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"d3 ");
+      return false;
+    case eACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"e9 ");
+      return false;
+    case EACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"c9 ");
+      return false;
+    case uACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"fa ");
+      return false;
+    case UACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"da ");
+      return false;
+    case iACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"ed ");
+      return false;
+    case IACUTE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"cd ");
+      return false;
+    case nTILDE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"f1 ");
+      return false;
+    case NTILDE:
+      if (record->event.pressed) SEND_STRING(SS_LCTRL(SS_LSFT("u"))"d1 ");
+      return false;
   }
   return true;
 }
