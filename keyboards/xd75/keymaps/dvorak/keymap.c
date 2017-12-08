@@ -30,6 +30,7 @@ enum custom_keycodes {
   DVORAK = SAFE_RANGE,
   LOWER,
   RAISE,
+  ESC_CTL, // If tapped, ESC; if used in combination with other keys, works as LCTL.
   BACKLIT
 };
 
@@ -44,7 +45,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------+------+------+------|
  * | Tab  |   "  |   ,  |   .  |   P  |   Y  |      |      |      |   F  |   G  |   C  |   R  |   L  | Bksp |
  * |------+------+------+------+------+-------------+------+------+------+------+------+------+------+------|
- * | Esc  |   A  |   O  |   E  |   U  |   I  |      |      |      |   D  |   H  |   T  |  N/Ñ |   S  |  /   |
+ * | Esc  |   A  |   O  |   E  |   U  |   I  |      |      |      |   D  |   H  |   T  |   N  |   S  |  /   |
  * |------+------+------+------+------+------|------+------+------+------+------+------+------+------+------|
  * | Shift|   ;  |   Q  |   J  |   K  |   X  |      |      |      |   B  |   M  |   W  |   V  |   Z  |Enter |
  * |------+------+------+------+------+------+------+------+------+------+------+------+------+------+------|
@@ -54,7 +55,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_DVORAK] = {
   { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
   { KC_TAB,  KC_QUOT, KC_COMM, KC_DOT,  KC_P,    KC_Y,    _______, _______, _______, KC_F,    KC_G,    KC_C,    KC_R,    KC_L,    KC_BSPC },
-  { KC_ESC,  KC_A,    KC_O,    KC_E,    KC_U,    KC_I,    _______, _______, _______, KC_D,    KC_H,    KC_T,    KC_N,    KC_S,    KC_SLSH },
+  { ESC_CTL, KC_A,    KC_O,    KC_E,    KC_U,    KC_I,    _______, _______, _______, KC_D,    KC_H,    KC_T,    KC_N,    KC_S,    KC_SLSH },
   { KC_LSFT, KC_SCLN, KC_Q,    KC_J,    KC_K,    KC_X,    _______, _______, _______, KC_B,    KC_M,    KC_W,    KC_V,    KC_Z,    KC_ENT  },
   { BACKLIT, KC_LCTL, KC_LALT, KC_LGUI, LOWER,   KC_SPC,  _______, _______, _______, KC_SPC,  RAISE,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT }
 },
@@ -102,8 +103,33 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 }
 };
 
+enum smart_ctrl {
+  CTRL_NOT_USED,
+  CTRL_USED
+};
+
+bool smart_ctrl_state = CTRL_NOT_USED;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  if (record->event.pressed) {
+    smart_ctrl_state = CTRL_USED;
+  }
+
   switch (keycode) {
+    case ESC_CTL:
+      if (record->event.pressed) {
+        smart_ctrl_state = CTRL_NOT_USED;
+        register_code(KC_LCTL);
+      }
+      else {
+        unregister_code(KC_LCTL);
+        if (smart_ctrl_state == CTRL_NOT_USED) {
+          register_code(KC_ESC);
+          unregister_code(KC_ESC);
+        }
+      }
+      return false;
+      break;
     case DVORAK:
       if (record->event.pressed) {
         set_single_persistent_default_layer(_DVORAK);
