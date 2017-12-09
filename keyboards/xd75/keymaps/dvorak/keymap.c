@@ -61,11 +61,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * |------+------+------+------+------+------+------+------+------+------+------+------+------+------+------|
  * | Tab  |   "  |   ,  |   .  |   P  |   Y  |      |      |      |   F  |   G  |   C  |   R  |   L  | Bksp |
  * |------+------+------+------+------+-------------+------+------+------+------+------+------+------+------|
- * | Esc  |   A  |   O  |   E  |   U  |   I  |      |      |      |   D  |   H  |   T  |   N  |   S  |  /   |
+ * |ES/CTL|   A  |   O  |   E  |   U  |   I  |      |      |      |   D  |   H  |   T  |   N  |   S  |  /   |
  * |------+------+------+------+------+------|------+------+------+------+------+------+------+------+------|
- * | Shift|   ;  |   Q  |   J  |   K  |   X  |      |      |      |   B  |   M  |   W  |   V  |   Z  |Enter |
+ * | Shift|   ;  |   Q  |   J  |   K  |   X  |      |      |      |   B  |   M  |   W  |   V  |   Z  |EN/SFT|
  * |------+------+------+------+------+------+------+------+------+------+------+------+------+------+------|
- * | Brite| Ctrl | Alt  | GUI  |Lower |Space |      |      |      |Space |Raise | Left | Down |  Up  | Right|
+ * | Brite|      |      | Alt  |Lower | SPC  |      |      |      | SPC  |Raise | GUI  |      |      |      |
  * `--------------------------------------------------------------------------------------------------------'
  */
 [_DVORAK] = {
@@ -73,7 +73,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   { KC_TAB,  KC_QUOT, KC_COMM, KC_DOT,  KC_P,    KC_Y,    _______, _______, _______, KC_F,    KC_G,    KC_C,    KC_R,    KC_L,    KC_BSPC },
   { ESC_CTL, KC_A,    KC_O,    KC_E,    KC_U,    KC_I,    _______, _______, _______, KC_D,    KC_H,    KC_T,    KC_N,    KC_S,    KC_SLSH },
   { KC_LSFT, KC_SCLN, KC_Q,    KC_J,    KC_K,    KC_X,    _______, _______, _______, KC_B,    KC_M,    KC_W,    KC_V,    KC_Z,    ENT_SFT },
-  { BACKLIT, KC_LCTL, KC_LALT, KC_LGUI, LOWER,   KC_SPC,  _______, _______, _______, KC_SPC,  RAISE,   KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT }
+  { BACKLIT, _______, _______, KC_LALT, LOWER,   KC_SPC,  _______, _______, _______, KC_SPC,  RAISE,   KC_RGUI, _______, _______, _______ }
 },
 
 /* Lower
@@ -159,8 +159,8 @@ enum smart_key {
   KEY_USED
 };
 
-bool smart_ctrl_state = KEY_NOT_USED;
-bool smart_sft_state = KEY_NOT_USED;
+enum smart_key smart_ctrl_state = KEY_NOT_USED;
+enum smart_key smart_sft_state = KEY_NOT_USED;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
