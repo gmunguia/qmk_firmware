@@ -46,8 +46,7 @@ enum custom_keycodes {
   EACUTE,
   UACUTE,
   IACUTE,
-  NTILDE,
-  BACKLIT
+  NTILDE
 };
 
 #define XXXXXXX KC_NO
@@ -134,8 +133,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_I18N] = {
   { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
   { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
-  { _______, aACUTE,  oACUTE,  eACUTE,  uACUTE,  iACUTE,  _______, _______, _______, _______, _______, _______, nTILDE,  _______, _______ },
-  { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ },
+  { RGB_TOG, aACUTE,  oACUTE,  eACUTE,  uACUTE,  iACUTE,  _______, _______, _______, _______, _______, _______, nTILDE,  _______, _______ },
+  { _______, RGB_HUD, RGB_HUI, RGB_SAD, RGB_SAI, RGB_VAD, RGB_VAI, RGB_MODE_FORWARD, RGB_MODE_REVERSE, _______, _______, _______, _______, _______, _______ },
   { _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______, _______ }
 },
 [_SHIFT] = {
@@ -228,17 +227,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         layer_off(_RAISE);
         update_tri_layer(_LOWER, _RAISE, _I18N);
         update_tri_layer(_I18N, _SHIFT, _I18NCAPS);
-      }
-      return false;
-      break;
-    case BACKLIT:
-      if (record->event.pressed) {
-        register_code(KC_RSFT);
-        #ifdef BACKLIGHT_ENABLE
-          backlight_step();
-        #endif
-      } else {
-        unregister_code(KC_RSFT);
       }
       return false;
       break;
